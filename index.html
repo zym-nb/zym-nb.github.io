@@ -3,11 +3,12 @@
 <head>
 <meta charset="utf-8">
 <title>连板天梯</title>
+
 <style>
-body {
+body{
   margin:0;
-  font-family: Arial;
   background:#0f172a;
+  font-family:Arial;
   color:#fff;
 }
 .container{
@@ -15,10 +16,9 @@ body {
 }
 textarea{
   width:100%;
-  height:200px;
+  height:180px;
   border-radius:10px;
   padding:10px;
-  font-size:14px;
 }
 button{
   width:100%;
@@ -26,58 +26,74 @@ button{
   margin-top:10px;
   background:#22c55e;
   border:none;
-  color:#000;
   font-size:18px;
   border-radius:10px;
 }
-.card{
+.board{
   margin-top:20px;
-  background:#111827;
   padding:15px;
-  border-radius:15px;
+  border-radius:12px;
 }
-.title{
-  font-size:22px;
-  font-weight:bold;
-  margin-bottom:10px;
-}
-.item{
-  margin:5px 0;
-}
+.lv5{background:#ef4444;}
+.lv4{background:#f97316;}
+.lv3{background:#eab308;}
+.lv2{background:#22c55e;}
+.lv1{background:#3b82f6;}
+.item{margin:5px 0;}
+.title{font-weight:bold;margin-bottom:8px;}
 </style>
+
 </head>
 
 <body>
 
 <div class="container">
 
-<h2>📊 连板天梯生成器</h2>
+<h2>📊 连板天梯（自动分层）</h2>
 
-<textarea id="input" placeholder="把每日数据粘贴在这里"></textarea>
+<textarea id="input" placeholder="粘贴数据，例如：
+5板：金螳螂
+3板：安诺其
+2板：泰慕士
+首板：迎驾贡酒"></textarea>
 
-<button onclick="generate()">生成海报</button>
+<button onclick="run()">生成</button>
 
-<div id="output"></div>
+<div id="out"></div>
 
 </div>
 
 <script>
-function generate(){
-  let text = document.getElementById("input").value;
-  let lines = text.split("\n");
+function run(){
+  let text = document.getElementById("input").value.split("\n");
 
-  let html = '<div class="card">';
-  html += '<div class="title">连板天梯</div>';
+  let data = {5:[],4:[],3:[],2:[],1:[]};
 
-  lines.forEach(line=>{
-    if(line.trim() !== ""){
-      html += '<div class="item">'+line+'</div>';
-    }
+  text.forEach(line=>{
+    if(line.includes("5板")) data[5].push(line);
+    else if(line.includes("4板")) data[4].push(line);
+    else if(line.includes("3板")) data[3].push(line);
+    else if(line.includes("2板")) data[2].push(line);
+    else data[1].push(line);
   });
 
-  html += '</div>';
+  let html = "";
 
-  document.getElementById("output").innerHTML = html;
+  function block(arr,title,cls){
+    if(arr.length==0) return "";
+    let s = `<div class="board ${cls}"><div class="title">${title}</div>`;
+    arr.forEach(i=>{s+=`<div class="item">${i}</div>`});
+    s += "</div>";
+    return s;
+  }
+
+  html += block(data[5],"🔥5板","lv5");
+  html += block(data[4],"4板","lv4");
+  html += block(data[3],"3板","lv3");
+  html += block(data[2],"2板","lv2");
+  html += block(data[1],"首板","lv1");
+
+  document.getElementById("out").innerHTML = html;
 }
 </script>
 

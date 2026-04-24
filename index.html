@@ -3,10 +3,83 @@
 <head>
 <meta charset="utf-8">
 <title>连板天梯</title>
+<style>
+body {
+  margin:0;
+  font-family: Arial;
+  background:#0f172a;
+  color:#fff;
+}
+.container{
+  padding:20px;
+}
+textarea{
+  width:100%;
+  height:200px;
+  border-radius:10px;
+  padding:10px;
+  font-size:14px;
+}
+button{
+  width:100%;
+  padding:15px;
+  margin-top:10px;
+  background:#22c55e;
+  border:none;
+  color:#000;
+  font-size:18px;
+  border-radius:10px;
+}
+.card{
+  margin-top:20px;
+  background:#111827;
+  padding:15px;
+  border-radius:15px;
+}
+.title{
+  font-size:22px;
+  font-weight:bold;
+  margin-bottom:10px;
+}
+.item{
+  margin:5px 0;
+}
+</style>
 </head>
+
 <body>
 
-<h1>网站成功了 🚀</h1>
+<div class="container">
+
+<h2>📊 连板天梯生成器</h2>
+
+<textarea id="input" placeholder="把每日数据粘贴在这里"></textarea>
+
+<button onclick="generate()">生成海报</button>
+
+<div id="output"></div>
+
+</div>
+
+<script>
+function generate(){
+  let text = document.getElementById("input").value;
+  let lines = text.split("\n");
+
+  let html = '<div class="card">';
+  html += '<div class="title">连板天梯</div>';
+
+  lines.forEach(line=>{
+    if(line.trim() !== ""){
+      html += '<div class="item">'+line+'</div>';
+    }
+  });
+
+  html += '</div>';
+
+  document.getElementById("output").innerHTML = html;
+}
+</script>
 
 </body>
 </html>

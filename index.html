@@ -2,138 +2,57 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>连板天梯·海报版</title>
-
-<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+<title>连板天梯·终极版</title>
 
 <style>
-body{
-  margin:0;
-  background:#eee;
-  font-family: "Microsoft YaHei";
-}
-
-/* ===== 输入区 ===== */
-.panel{
-  padding:15px;
-}
-textarea{
-  width:100%;
-  height:120px;
-  border-radius:10px;
-  padding:10px;
-}
-button{
-  width:100%;
-  margin-top:8px;
-  padding:12px;
-  border:none;
-  border-radius:10px;
-  font-size:16px;
-}
-.gen{background:#22c55e;}
-.img{background:#3b82f6;color:#fff;}
-
-/* ===== 海报主体 ===== */
-.poster{
-  width:360px;
-  margin:20px auto;
-  background:#fff;
-  border:10px solid #e60000;
-  border-radius:20px;
-  padding:10px;
-}
-
-/* 标题 */
-.title{
-  text-align:center;
-  color:#e60000;
-  font-size:28px;
-  font-weight:bold;
-}
-.sub{
-  text-align:center;
-  color:#e60000;
-  margin-bottom:10px;
-}
-
-/* 指数 */
-.info{
-  background:#f5f5f5;
-  border-radius:10px;
-  padding:8px;
-  font-size:12px;
-  margin-bottom:10px;
-}
-
-/* 每一层 */
-.row{
-  display:flex;
-  margin-bottom:6px;
-}
-
-/* 左侧板块 */
-.left{
-  width:60px;
-  background:#e60000;
-  color:#fff;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-weight:bold;
-  border-radius:6px;
-}
-
-/* 右侧内容 */
-.right{
-  flex:1;
-  background:#fafafa;
-  padding:5px;
-  border-radius:6px;
-  display:flex;
-  flex-wrap:wrap;
-}
-
-/* 单个股票 */
-.item{
-  width:25%;
-  font-size:10px;
-  text-align:center;
-  margin-bottom:5px;
-}
-
-.name{font-weight:bold;}
-.time{color:#888;}
-
-.footer{
-  font-size:10px;
-  text-align:center;
-  margin-top:10px;
-}
+body{font-family:Arial;padding:10px;}
+textarea{width:100%;height:120px;}
+button{width:100%;margin-top:8px;padding:12px;}
+canvas{width:100%;margin-top:10px;}
 </style>
-
 </head>
 
 <body>
 
-<div class="panel">
-<textarea id="input" placeholder="直接粘贴你的数据"></textarea>
-<button class="gen" onclick="run()">生成海报</button>
-<button class="img" onclick="save()">导出图片</button>
-</div>
+<h3>🚀 连板天梯终极版</h3>
 
-<div id="poster"></div>
+<textarea id="input" placeholder="格式：时间 名字 板块"></textarea>
+
+<button onclick="draw()">生成海报</button>
+<button onclick="save()">保存图片</button>
+
+<canvas id="cvs" width="1080" height="1920"></canvas>
 
 <script>
-
 function parse(line){
-  let time = (line.match(/\d{2}:\d{2}/)||[""])[0];
-  let name = line.split(" ")[1]||line;
-  return {time,name};
+  let p=line.split(" ");
+  return {
+    time:p[0]||"",
+    name:p[1]||"",
+    tag:p[2]||""
+  }
 }
 
-function run(){
-  let lines = document.getElementById("input").value.split("\n");
+function draw(){
+
+  let ctx=document.getElementById("cvs").getContext("2d");
+
+  // 背景
+  ctx.fillStyle="#ffffff";
+  ctx.fillRect(0,0,1080,1920);
+
+  // 红框
+  ctx.strokeStyle="#d60000";
+  ctx.lineWidth=20;
+  ctx.strokeRect(20,20,1040,1880);
+
+  // 标题
+  ctx.fillStyle="#d60000";
+  ctx.font="bold 80px Arial";
+  ctx.textAlign="center";
+  ctx.fillText("连板天梯",540,120);
+
+  let lines=document.getElementById("input").value.split("\n");
 
   let data={5:[],4:[],3:[],2:[],1:[]};
 
@@ -145,57 +64,60 @@ function run(){
     else if(l.trim()!="") data[1].push(parse(l));
   });
 
-  function render(arr,title){
-    if(arr.length==0) return "";
-    let html=`<div class="row">
-    <div class="left">${title}</div>
-    <div class="right">`;
+  let y=200;
 
-    arr.forEach(i=>{
-      html+=`
-      <div class="item">
-        <div class="time">${i.time}</div>
-        <div class="name">${i.name}</div>
-      </div>`;
+  function drawRow(arr,title){
+
+    if(arr.length==0) return;
+
+    // 左红块
+    ctx.fillStyle="#d60000";
+    ctx.fillRect(40,y,120,80);
+
+    ctx.fillStyle="#fff";
+    ctx.font="bold 40px Arial";
+    ctx.fillText(title,100,y+50);
+
+    let x=180;
+
+    arr.forEach((i,index)=>{
+
+      let col=index%5;
+      let row=Math.floor(index/5);
+
+      let bx=180+col*170;
+      let by=y+row*90;
+
+      ctx.fillStyle="#000";
+      ctx.font="24px Arial";
+      ctx.fillText(i.time,bx,by+20);
+
+      ctx.font="bold 26px Arial";
+      ctx.fillText(i.name,bx,by+45);
+
+      ctx.fillStyle="#d60000";
+      ctx.font="20px Arial";
+      ctx.fillText(i.tag,bx,by+70);
     });
 
-    html+="</div></div>";
-    return html;
+    y+=Math.ceil(arr.length/5)*90+20;
   }
 
-  let html=`
-  <div class="poster" id="posterArea">
-    <div class="title">连板天梯</div>
-    <div class="sub">（自动生成）</div>
+  drawRow(data[5],"5板");
+  drawRow(data[4],"4板");
+  drawRow(data[3],"3板");
+  drawRow(data[2],"2板");
+  drawRow(data[1],"首板");
 
-    <div class="info">
-      示例：指数/成交额/封板率（可后续自动化）
-    </div>
-
-    ${render(data[5],"5板")}
-    ${render(data[4],"4板")}
-    ${render(data[3],"3板")}
-    ${render(data[2],"2板")}
-    ${render(data[1],"首板")}
-
-    <div class="footer">
-      数据来源：自动生成
-    </div>
-  </div>
-  `;
-
-  document.getElementById("poster").innerHTML=html;
 }
 
 function save(){
-  html2canvas(document.querySelector("#posterArea")).then(canvas=>{
-    let a=document.createElement("a");
-    a.download="连板天梯.png";
-    a.href=canvas.toDataURL();
-    a.click();
-  });
+  let cvs=document.getElementById("cvs");
+  let a=document.createElement("a");
+  a.download="连板天梯.png";
+  a.href=cvs.toDataURL();
+  a.click();
 }
-
 </script>
 
 </body>
